@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ryu Bikes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+        }
+        .text-shadow-custom {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Custom styles for the dropdown to ensure it's hidden by default and appears on click */
+        .dropdown-menu {
+            display: none;
+        }
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        /* Style for the floating image modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            position: relative;
+            margin: auto;
+            padding: 20px;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .cart-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cart-modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        /* Style for the video slide to ensure the video covers the full area */
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .video-container video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="images/Gemini_Generated_Image_r8hsoar8hsoar8hs.png" alt="Supreme Bikes Logo" class="w-12 h-12 rounded-full">
+                <span class="font-bold text-xl text-red-500">RYUFIXED BIKES PH</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-6">
+                    <div class="relative">
+                        <button id="all-dropdown-btn" class="text-gray-600 hover:text-gray-900 font-semibold px-2 py-1 rounded-md transition-colors duration-200 focus:outline-none">
+                            All▾
+                        </button>
+                        <div id="all-dropdown-menu" class="dropdown-menu absolute left-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Whole Bike</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Bike Parts</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Frame set</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Wheel set</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Accessories</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Jersey</a>
+                        </div>
+                    </div>
+                <a href="#" class="text-gray-800 hover:text-red-600 transition duration-300 font-medium">Home</a>
+                <a href="#" class="text-gray-800 hover:text-red-600 transition duration-300 font-medium">What's New</a>
+                <a href="#" class="text-gray-800 hover:text-red-600 transition duration-300 font-medium">About</a>
+                <a href="#" class="text-gray-800 hover:text-red-600 transition duration-300 font-medium">Support</a>
+                <a href="#" class="text-gray-800 hover:text-red-600 transition duration-300 font-medium">FAQs</a>
+                <a href="#" class="text-gray-800 hover:text-red-600 transition duration-300 font-medium">Contact Us</a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-800 hover:text-red-600 transition duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                </button>
+                <button id="cart-button" class="text-gray-800 hover:text-red-600 transition duration-300 relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hover:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full opacity-0 transition-opacity duration-300">0</span>
+                </button>
+                <div class="relative z-50"> <button id="profile-icon" class="p-2 text-gray-800 hover:text-red-500 transition duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
+
+                    <div id="profile-dropdown" class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl z-20 hidden transform transition duration-300 origin-top-right border border-gray-100">
+                        <div class="p-4 space-y-3">
+                            <h3 class="text-xl font-bold text-gray-900 border-b border-gray-200 pb-3 mb-2">Account Access</h3>
+                            
+                            <button class="w-full px-4 py-2 bg-red-600 text-white rounded-lg font-semibold text-base hover:bg-red-700 transition duration-150 shadow-md transform hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
+                                Login Account
+                            </button>
+                            <button class="w-full px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold text-base hover:bg-gray-300 transition duration-150 shadow-sm transform hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
+                                Signup Account
+                            </button>
+                            
+                            <div class="flex items-center space-x-2 pt-2">
+                                <div class="flex-grow border-t border-gray-300"></div>
+                                <span class="text-sm text-gray-500 font-medium">or</span>
+                                <div class="flex-grow border-t border-gray-300"></div>
+                            </div>
+
+                            <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition duration-150 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                                <img src="images/gmail.webp" alt="Google" class="w-5 h-5 mr-3">
+                                Continue with Google
+                            </button>
+                            <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition duration-150 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="Facebook" class="w-5 h-5 mr-3">
+                                Continue with Facebook
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative bg-gray-200">
+        <div class="relative w-full h-[32rem] overflow-hidden">
+            <div id="banner-slider" class="flex transition-transform duration-500 ease-in-out h-full">
+                <div class="relative flex-none w-full h-full bg-cover bg-center" style="background-image: url('images/Gemini_Generated_Image_80kqlh80kqlh80kq.png')">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent"></div>
+                    <div class="absolute inset-0 flex items-center p-8 md:p-16 text-white">
+                        <div class="max-w-xl space-y-4">
+                            <h2 class="text-4xl md:text-6xl font-bold text-shadow-custom"></h2>
+                            <h3 class="text-3xl md:text-5xl font-bold text-shadow-custom">ASSIOMA PRO RS1 & RS2</h3>
+                            <p class="text-xl md:text-2xl font-light">Lightest SPD-SL power meter pedals in the market</p>
+                            <div class="flex space-x-4 pt-4">
+                                <button class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-full transition duration-300 shadow-lg">
+                                    PRE-ORDER NOW
+                                </button>
+                                <button id="shopNowBtn" class="bg-transparent border border-white text-white font-semibold py-3 px-6 rounded-full hover:bg-white hover:text-gray-800 transition duration-300">Shop Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative flex-none w-full h-full bg-cover bg-center" style="background-image: url('images/Gemini_Generated_Image_3u8dkw3u8dkw3u8d.png')">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent"></div>
+                    <div class="absolute inset-0 flex items-center p-8 md:p-16 text-white">
+                        <div class="max-w-xl space-y-4">
+                            <h2 class="text-4xl md:text-6xl font-bold text-shadow-custom">SUB50</h2>
+                            <h3 class="text-3xl md:text-5xl font-bold text-shadow-custom">WIDE WHERE IT MATTERS. <br> FAST EVERYWHERE.</h3>
+                            <p class="text-xl md:text-2xl font-light">COMPLETELY UNREASONABLE.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative flex-none w-full h-full bg-cover bg-center" style="background-image: url('images/Gemini_Generated_Image_ydcsggydcsggydcs.png')">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent"></div>
+                    <div class="absolute inset-0 flex items-center p-8 md:p-16 text-white">
+                <div class="max-w-xl space-y-4">
+                            <h2 class="text-4xl md:text-6xl font-bold text-shadow-custom"></h2>
+                            <h3 class="text-3xl md:text-5xl font-bold text-shadow-custom"></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative flex-none w-full h-full">
+                    <div class="video-container">
+                        <video autoplay loop muted playsinline poster="videos/ssstik.io_@45_degree_1759068290752.mp4" class="absolute inset-0 w-full h-full object-cover">
+                            <source src="videos/ssstik.io_@45_degree_1759068290752.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="absolute inset-0 bg-black/50"></div> <div class="absolute inset-0 flex flex-col justify-center items-center p-8 md:p-16 text-white text-center">
+                            <h3 class="text-4xl md:text-6xl font-extrabold text-shadow-custom mb-4 animate-pulse">
+                                ONE GEAR, NO FEAR.
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
+            <button id="prev-button" class="bg-gray-800 text-white rounded-full p-2 hover:bg-red-600 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+            </button>
+            <div id="dot-container" class="flex space-x-2"></div>
+            <button id="next-button" class="bg-gray-800 text-white rounded-full p-2 hover:bg-red-600 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </button>
+        </div>
+    </main>
+
+    <section class="container mx-auto px-4 py-12 relative">
+        <h2 class="text-3xl font-bold mb-8">Best Sales</h2>
+        <div class="relative">
+            <div id="product-carousel" class="flex overflow-x-hidden space-x-4 pb-4 scroll-smooth">
+                <div class="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105" data-product-id="1" data-product-name="Cinelli Vigorelli" data-product-price="4800.00" data-product-image="images/cinelli.jpg">
+                    <img src="images/cinelli.jpg" alt="Cinelli Vigorelli" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">Cinelli Vigorelli</h3>
+                        <p class="text-gray-600 mb-2">$4,800.00</p>
+                        <button class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300 add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105" data-product-id="2" data-product-name="FUJI Track Elite" data-product-price="4750.00" data-product-image="images/fuji.jpg">
+                    <img src="images/fuji.jpg" alt="FUJI Track Elite" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">FUJI Track Elite</h3>
+                        <p class="text-gray-600 mb-2">$4,750.00</p>
+                        <button class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300 add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105" data-product-id="3" data-product-name="Cervelo T1 MK1" data-product-price="4500.00" data-product-image="images/cervelo.jpg">
+                    <img src="images/cervelo.jpg" alt="Cervelo T1 MK1" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">Cervelo T1 MK1</h3>
+                        <p class="text-gray-600 mb-2">$4,500.00</p>
+                        <button class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300 add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105" data-product-id="4" data-product-name="LOOK CR 564P" data-product-price="3500.00" data-product-image="images/look-cr-564p-track-bike.jpg">
+                    <img src="images/look-cr-564p-track-bike.jpg" alt="LOOK CR 564P" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">LOOK CR 564P</h3>
+                        <p class="text-gray-600 mb-2">$3,500.00</p>
+                        <button class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300 add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105" data-product-id="5" data-product-name="BXT TRC 195" data-product-price="3200.00" data-product-image="images/photo_6230763748876994179_y.jpg">
+                    <img src="images/photo_6230763748876994179_y.jpg" alt="BXT TRC 195" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">BXT TRC 195</h3>
+                        <p class="text-gray-600 mb-2">$3,200.00</p>
+                        <button class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300 add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105" data-product-id="6" data-product-name="Dolan DF4" data-product-price="2700.00" data-product-image="images/photo_6230763748876994178_y.jpg">
+                    <img src="images/photo_6230763748876994178_y.jpg" alt="Dolan DF4" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">Dolan DF4</h3>
+                        <p class="text-gray-600 mb-2">$2,700.00</p>
+                        <button class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300 add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                 <div class="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105" data-product-id="7" data-product-name="Specialized S-Works Venge" data-product-price="9500.00" data-product-image="https://placehold.co/600x400/FF5733/ffffff?text=Product+7">
+                    <img src="images/unknown.jpg" alt="Specialized S-Works Venge" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">UNKNOWN BLCK</h3>
+                        <p class="text-gray-600 mb-2">$2,000.00</p>
+                        <button class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300 add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105" data-product-id="8" data-product-name="Trek Madone SLR 9" data-product-price="12000.00" data-product-image="https://placehold.co/600x400/33FF57/ffffff?text=Product+8">
+                    <img src="images/pinellaro.jpg" alt="Trek Madone SLR 9" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">Pinarello MAAT</h3>
+                        <p class="text-gray-600 mb-2">$4,700.00</p>
+                        <button class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300 add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                 <div class="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105" data-product-id="9" data-product-name="Cannondale SuperSix EVO" data-product-price="8200.00" data-product-image="https://placehold.co/600x400/5733FF/ffffff?text=Product+9">
+                    <img src="images/tmc.jpg" alt="Cannondale SuperSix EVO" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">BMC AL ONE</h3>
+                        <p class="text-gray-600 mb-2">$1,500.00</p>
+                        <button class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300 add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                 <div class="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105" data-product-id="10" data-product-name="Giant TCR Advanced SL" data-product-price="7800.00" data-product-image="https://placehold.co/600x400/FFFF33/ffffff?text=Product+10">
+                    <img src="images/weapon (2).jpg" alt="Giant TCR Advanced SL" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">WEAPON Bullet Aero</h3>
+                        <p class="text-gray-600 mb-2">$1,200.00</p>
+                        <button class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300 add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <button id="scroll-left-btn" class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-gray-800 text-white rounded-full p-2 hover:bg-red-600 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+            </button>
+            <button id="scroll-right-btn" class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-gray-800 text-white rounded-full p-2 hover:bg-red-600 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-gray-400 py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-500 mb-2">&copy;2025 RYU FIXED BIKES PH</p>
+            
+            <address class="not-italic flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-8">
+                <div class="flex items-center space-x-2 text-gray-400 hover:text-red-500 transition duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                    <a href="mailto:jroagarcia88@gmail.com">jroagarcia88@gmail.com</a>
+                </div>
+                
+                <div class="flex items-center space-x-2 text-gray-400 hover:text-red-500 transition duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75l10.5 10.5 10.5-10.5" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75V21" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12V7.5a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 7.5V12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                    </svg>
+                    <span>09268749279</span>
+                </div>
+            </address>
+        </div>
+    </footer>
+
+    <div class="bg-gray-900 text-gray-100 py-8 mt-auto">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="text-xl font-extrabold mb-6 text-red-500">CREATED BY:</h3>
+            <div class="flex flex-wrap justify-center gap-8">
+                <div class="flex flex-col items-center group cursor-pointer hover:scale-105 transition duration-300">
+                    <img src="images/eric.jpg" alt="Eric Oralde" class="w-24 h-24 rounded-full object-cover border-4 border-red-600 shadow-xl">
+                    <p class="mt-2 text-sm font-medium text-gray-300 group-hover:text-red-500 transition duration-300">Eric Oralde</p>
+                </div>
+                <div class="flex flex-col items-center group cursor-pointer hover:scale-105 transition duration-300">
+                    <img src="images/kim (2).jpg" alt="Kim Joren Mondaya" class="w-24 h-24 rounded-full object-cover border-4 border-red-600 shadow-xl">
+                    <p class="mt-2 text-sm font-medium text-gray-300 group-hover:text-red-500 transition duration-300">Kim Joren Mondaya</p>
+                </div>
+                <div class="flex flex-col items-center group cursor-pointer hover:scale-105 transition duration-300">
+                    <img src="images/dave.jpg" alt="Dave Canlobo" class="w-24 h-24 rounded-full object-cover border-4 border-red-600 shadow-xl">
+                    <p class="mt-2 text-sm font-medium text-gray-300 group-hover:text-red-500 transition duration-300">Dave Canlobo</p>
+                </div>
+                <div class="flex flex-col items-center group cursor-pointer hover:scale-105 transition duration-300">
+                    <img src="images/herme.jpg" alt="Herme Balbona" class="w-24 h-24 rounded-full object-cover border-4 border-red-600 shadow-xl">
+                    <p class="mt-2 text-sm font-medium text-gray-300 group-hover:text-red-500 transition duration-300">Herme Balbona</p>
+                </div>
+                <div class="flex flex-col items-center group cursor-pointer hover:scale-105 transition duration-300">
+                    <img src="images/dumay.jpg" alt="John Marc Dumay" class="w-24 h-24 rounded-full object-cover border-4 border-red-600 shadow-xl">
+                    <p class="mt-2 text-sm font-medium text-gray-300 group-hover:text-red-500 transition duration-300">John Marc Dumay</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="imageModal" class="modal">
+        <span class="close-button" id="closeModalBtn">&times;</span>
+        <div class="modal-content">
+            <img id="floatingImage" src="images/coco.png" alt="Floating product image">
+        </div>
+    </div>
+    
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Your Cart</h2>
+                <button id="close-cart-btn" class="text-gray-500 hover:text-gray-800 transition duration-300">&times;</button>
+            </div>
+            <div id="cart-items" class="space-y-4">
+                </div>
+            <div id="cart-summary" class="mt-4 pt-4 border-t border-gray-200">
+                <div class="flex justify-between font-bold text-lg">
+                    <span>Total:</span>
+                    <span id="cart-total">$0.00</span>
+                </div>
+                <button id="checkout-btn" class="w-full bg-red-600 text-white py-3 mt-4 rounded-lg hover:bg-red-700 transition duration-300">Checkout</button>
+            </div>
+            <div id="empty-cart-message" class="text-center text-gray-500 mt-4 hidden">Your cart is empty.</div>
+        </div>
+    </div>
+
+    <script>
+        const slider = document.getElementById('banner-slider');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        const dotContainer = document.getElementById('dot-container');
+        const slides = slider.children;
+        const totalSlides = slides.length; // Now includes the video slide
+        let currentIndex = 0;
+
+        // Create a dot for each slide
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('button');
+            dot.classList.add('w-3', 'h-3', 'rounded-full', 'bg-gray-400', 'hover:bg-red-600', 'transition', 'duration-300');
+            dot.setAttribute('data-index', i);
+            dotContainer.appendChild(dot);
+            dot.addEventListener('click', () => goToSlide(i));
+        }
+
+        function updateSlider() {
+            const offset = -currentIndex * 100;
+            slider.style.transform = `translateX(${offset}%)`;
+
+            // Update active dot
+            const dots = dotContainer.children;
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].classList.remove('bg-red-600', 'scale-125');
+                dots[i].classList.add('bg-gray-400');
+            }
+            dots[currentIndex].classList.remove('bg-gray-400');
+            dots[currentIndex].classList.add('bg-red-600', 'scale-125');
+        }
+
+        function goToSlide(index) {
+            currentIndex = (index + totalSlides) % totalSlides;
+            updateSlider();
+        }
+
+        prevButton.addEventListener('click', () => goToSlide(currentIndex - 1));
+        nextButton.addEventListener('click', () => goToSlide(currentIndex + 1));
+
+        // Initial update
+        updateSlider();
+    </script>
+    <script>
+        const allDropdownBtn = document.getElementById('all-dropdown-btn');
+        const allDropdownMenu = document.getElementById('all-dropdown-menu');
+
+        allDropdownBtn.addEventListener('click', () => {
+            allDropdownMenu.classList.toggle('active');
+        });
+
+        // Hide the dropdown if the user clicks outside of it
+        document.addEventListener('click', (event) => {
+            if (!allDropdownBtn.contains(event.target) && !allDropdownMenu.contains(event.target)) {
+                allDropdownMenu.classList.remove('active');
+            }
+        });
+    </script>
+
+    <script>
+        const profileIcon = document.getElementById('profile-icon');
+        const profileDropdown = document.getElementById('profile-dropdown');
+
+        // Function to toggle the profile dropdown
+        function toggleProfileDropdown() {
+            profileDropdown.classList.toggle('hidden');
+        }
+
+        // Event listener to show/hide the dropdown on click
+        profileIcon.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevents the document click listener from immediately closing it
+            toggleProfileDropdown();
+        });
+
+        // Event listener to hide the dropdown if the user clicks outside of it
+        document.addEventListener('click', (event) => {
+            if (!profileIcon.contains(event.target) && !profileDropdown.contains(event.target)) {
+                if (!profileDropdown.classList.contains('hidden')) {
+                    profileDropdown.classList.add('hidden');
+                }
+            }
+        });
+    </script>
+
+     <script>
+        const shopNowBtn = document.getElementById('shopNowBtn');
+        const imageModal = document.getElementById('imageModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        shopNowBtn.addEventListener('click', () => {
+            imageModal.style.display = 'flex';
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            imageModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === imageModal) {
+                imageModal.style.display = 'none';
+            }
+        });
+    </script>
+
+    <script>
+        const productCarousel = document.getElementById('product-carousel');
+        const scrollLeftBtn = document.getElementById('scroll-left-btn');
+        const scrollRightBtn = document.getElementById('scroll-right-btn');
+        const cartButton = document.getElementById('cart-button');
+        const cartModal = document.getElementById('cart-modal');
+        const closeCartBtn = document.getElementById('close-cart-btn');
+        const cartItemsContainer = document.getElementById('cart-items');
+        const cartCountSpan = document.getElementById('cart-count');
+        const cartTotalSpan = document.getElementById('cart-total');
+        const emptyCartMessage = document.getElementById('empty-cart-message');
+
+        const scrollAmount = 300; // Adjust this value for the scroll distance
+
+        scrollLeftBtn.addEventListener('click', () => {
+            productCarousel.scrollLeft -= scrollAmount;
+        });
+
+        scrollRightBtn.addEventListener('click', () => {
+            productCarousel.scrollLeft += scrollAmount;
+        });
+        
+        // Cart functionality
+        let cart = [];
+
+        function renderCart() {
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+
+            if (cart.length === 0) {
+                emptyCartMessage.classList.remove('hidden');
+                cartTotalSpan.textContent = `$0.00`;
+            } else {
+                emptyCartMessage.classList.add('hidden');
+                cart.forEach(item => {
+                    const cartItemEl = document.createElement('div');
+                    cartItemEl.classList.add('flex', 'items-center', 'space-x-4', 'p-2', 'bg-gray-100', 'rounded-lg');
+                    cartItemEl.innerHTML = `
+                        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md">
+                        <div class="flex-grow">
+                            <h4 class="font-semibold text-gray-800">${item.name}</h4>
+                            <p class="text-sm text-gray-600">$${item.price.toFixed(2)}</p>
+                        </div>
+                        <button class="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300 buy-now-btn" data-product-id="${item.id}">Buy Now</button>
+                    `;
+                    cartItemsContainer.appendChild(cartItemEl);
+                    total += item.price;
+                });
+            }
+
+            cartTotalSpan.textContent = `$${total.toFixed(2)}`;
+            cartCountSpan.textContent = cart.length;
+            if (cart.length > 0) {
+                cartCountSpan.classList.remove('opacity-0');
+            } else {
+                cartCountSpan.classList.add('opacity-0');
+            }
+        }
+
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const productCard = event.target.closest('[data-product-id]');
+                const productId = productCard.dataset.productId;
+                const productName = productCard.dataset.productName;
+                const productPrice = parseFloat(productCard.dataset.productPrice);
+                const productImage = productCard.dataset.productImage;
+
+                const product = {
+                    id: productId,
+                    name: productName,
+                    price: productPrice,
+                    image: productImage,
+                };
+                
+                cart.push(product);
+                renderCart();
+            });
+        });
+
+        cartButton.addEventListener('click', () => {
+            cartModal.style.display = 'flex';
+        });
+
+        closeCartBtn.addEventListener('click', () => {
+            cartModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === cartModal) {
+                cartModal.style.display = 'none';
+            }
+        });
+
+        // Initial render of the cart
+        renderCart();
+
+        document.getElementById('checkout-btn').addEventListener('click', () => {
+            if (cart.length > 0) {
+                // You can add your checkout logic here.
+                console.log("Proceeding to checkout with items:", cart);
+                // For this example, we'll just clear the cart.
+                cart = [];
+                renderCart();
+                // NOTE: Replacing alert() with a console log as per instructions.
+                console.log("Thank you for your purchase!"); 
+                cartModal.style.display = 'none';
+            } else {
+                // NOTE: Replacing alert() with a console log as per instructions.
+                console.log("Your cart is empty.");
+            }
+        });
+        
+        document.addEventListener('click', (event) => {
+            if (event.target.classList.contains('buy-now-btn')) {
+                const productId = event.target.dataset.productId;
+                const productToBuy = cart.find(item => item.id === productId);
+                if (productToBuy) {
+                    console.log("Buying now:", productToBuy);
+                    // For this example, we'll just remove the item and show a console message.
+                    cart = cart.filter(item => item.id !== productId);
+                    renderCart();
+                    // NOTE: Replacing alert() with a console log as per instructions.
+                    console.log(`You are buying "${productToBuy.name}" now!`);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
